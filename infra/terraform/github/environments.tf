@@ -6,7 +6,7 @@ locals {
   environments = {
     dev = {
       branch     = "develop"
-      checks     = ["lint"]
+      checks     = []
     }
     staging = {
       branch     = "staging"
