@@ -1,0 +1,5 @@
+github_token     = ""
+github_owner     = ""
+repository_name  = ""
+vault_password   = ""
+github_username = ""
