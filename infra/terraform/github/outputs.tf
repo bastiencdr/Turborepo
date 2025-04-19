@@ -1,11 +1,11 @@
 output "repository_url" {
   description = "URL du repository GitHub créé"
-  value       = github_repository.monorepo.html_url
+  value       = data.github_repository.monorepo.html_url
 }
 
 output "repository_name" {
   description = "Nom du repository GitHub"
-  value       = github_repository.monorepo.name
+  value       = data.github_repository.monorepo.name
 }
 
 output "dev_team_slug" {

@@ -1,17 +1,11 @@
-resource "github_repository" "monorepo" {
-  name         = var.repository_name
-  description  = "Turborepo"
-  visibility   = "private"
-  auto_init    = false
-  has_issues   = true
-  has_wiki     = false
-  has_projects = false
+data "github_repository" "monorepo" {
+full_name = "${var.github_owner}/${var.repository_name}"
 }
 
 resource "github_branch_protection_v3" "branch_protections" {
   for_each = local.environments
 
-  repository = github_repository.monorepo.name
+  repository = data.github_repository.monorepo.name
   branch     = each.value.branch
 
   enforce_admins = true
