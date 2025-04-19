@@ -1,0 +1,14 @@
+# 📦 Fichiers générés par Terraform
+.terraform/
+.terraform.lock.hcl
+
+# 🔐 Fichiers de variables avec des secrets
+*.tfvars
+*.tfvars.json
+
+# 📄 Plans de déploiement temporaires
+terraform.tfplan
+
+# 📦 Backup auto des fichiers .tf
+*.tfstate
+*.tfstate.*

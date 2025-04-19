@@ -1,0 +1,30 @@
+# Exclure les dépendances de tous les packages
+**/node_modules/
+
+# Exclure les fichiers de configuration et de cache
+.git/
+.turbo/
+.vscode/
+dist/
+build/
+*.log
+*.tmp
+
+# Exclure les fichiers spécifiques à l'environnement de développement
+.env
+.env.local
+.env.development
+.env.test
+
+# Exclure les fichiers spécifiques à l'IDE
+.idea/
+*.swp
+*.swo
+
+# Exclure les fichiers de lock globaux (optionnel)
+bun.lockb
+package-lock.json
+yarn.lock
+
+vault_pass.txt
+letsencrypt

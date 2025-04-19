@@ -1,0 +1,26 @@
+{
+  "extends": "@repo/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "react": ["node_modules/@types/react"],
+      "@repo/email": ["../../packages/email"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    "next.config.js",
+    "dist/types/**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

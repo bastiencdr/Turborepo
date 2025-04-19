@@ -1,0 +1,20 @@
+---
+- name: Générer le fichier .env pour le global
+  template:
+    src: templates/global.env.j2
+    dest: "{{ global_path }}/.env"
+    mode: "0600"
+  tags: [global, env]
+
+- name: Créer le traefik-net
+  ansible.builtin.command: docker network create traefik-net
+  args:
+    state: present
+  tags: [global, deploy]
+
+- name: Déployer le compose global
+  become: true
+  ansible.builtin.command: docker compose up -d --build
+  args:
+    chdir: "{{ global_path }}"
+  tags: [global, deploy]

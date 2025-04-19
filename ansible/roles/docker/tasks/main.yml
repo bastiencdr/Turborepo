@@ -1,0 +1,62 @@
+---
+- name: Installer les paquets système requis
+  become: true
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    update_cache: yes
+    state: present
+
+- name: Ajouter la clé GPG officielle de Docker
+  become: true
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/trusted.gpg.d/docker.asc
+    mode: '0644'
+
+- name: Ajouter le dépôt officiel Docker
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+
+- name: Installer Docker
+  become: true
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    update_cache: yes
+    state: present
+
+- name: S'assurer que Docker est démarré et activé
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Ajouter l'utilisateur actuel au groupe Docker
+  become: true
+  user:
+    name: "{{ docker_user }}"
+    groups: docker
+    append: yes
+
+- name: Installer le SDK Docker pour Python via APT
+  become: true
+  apt:
+    name: python3-docker
+    state: present
+
+- name: Afficher un message de post-installation
+  debug:
+    msg: "L'utilisateur {{ docker_user }} a été ajouté au groupe docker. Déconnecte-toi/reconnecte-toi ou fais un 'newgrp docker'."

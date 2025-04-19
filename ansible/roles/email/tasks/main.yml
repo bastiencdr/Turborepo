@@ -1,0 +1,21 @@
+---
+- name: Générer le fichier .env pour Email
+  template:
+    src: templates/email.env.j2
+    dest: "{{ email_path }}/.env"
+    mode: "0600"
+  tags: [email, env]
+
+- name: Générer le fichier .env pour Email package
+  template:
+    src: templates/email-package.env.j2
+    dest: "{{ email_package_path }}/.env"
+    mode: "0600"
+  tags: [email, env]
+
+- name: Déployer le worker email
+  become: true
+  ansible.builtin.command: docker compose up -d --build
+  args:
+    chdir: "{{ email_path }}"
+  tags: [email, deploy]
