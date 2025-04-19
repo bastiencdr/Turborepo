@@ -21,7 +21,7 @@ resource "github_branch_protection_v3" "branch_protections" {
     dismissal_teams       = [github_team.lead_team.slug]
 
     bypass_pull_request_allowances {
-      users = []
+      users = [var.github_username]
       teams = [github_team.lead_team.slug]
     }
   }
