@@ -23,3 +23,8 @@ variable "github_username" {
   description = "Ton nom d'utilisateur GitHub"
   type        = string
 }
+
+variable "jenkins_domain" {
+  description = "Domaine de Jenkins"
+  type        = string
+}

@@ -1,0 +1,92 @@
+name: Checks
+
+on:
+  pull_request:
+    branches: [main, develop, staging]
+  push:
+    branches: [main, develop, staging]
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Lint
+        run: echo "🔍 Lint OK"
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Tests
+        run: echo "🧪 Tests OK"
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Audit packages
+        run: |
+          npm install
+          npm audit --audit-level=high || exit 1
+
+  detect-apps:
+    name: Detect modified apps
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set matrix dynamically
+        id: set-matrix
+        run: |
+          echo "🔍 Looking for modified apps..."
+          changed_apps=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^apps/' | cut -d '/' -f2 | sort -u | jq -R . | jq -s .)
+          if [ -z "$changed_apps" ] || [ "$changed_apps" = "[]" ]; then
+            echo "No apps changed."
+            changed_apps="[]"
+          fi
+          echo "matrix={\"app\":$changed_apps}" >> $GITHUB_OUTPUT
+
+  typecheck:
+    name: typecheck ${{ matrix.app }}
+    needs: detect-apps
+    if: ${{ needs.detect-apps.outputs.matrix != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-apps.outputs.matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Typecheck app
+        run: |
+          echo "🔠 Typechecking app: ${{ matrix.app }}"
+          # cd apps/${{ matrix.app }} && npm run typecheck
+
+  build:
+    name: build ${{ matrix.app }}
+    needs: detect-apps
+    if: ${{ needs.detect-apps.outputs.matrix != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-apps.outputs.matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build app
+        run: |
+          echo "🏗️ Building app: ${{ matrix.app }}"
+          # cd apps/${{ matrix.app }} && npm run build

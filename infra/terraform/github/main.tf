@@ -36,7 +36,7 @@ resource "github_branch_protection_v3" "branch_protections" {
 resource "github_repository_webhook" "jenkins" {
   repository = var.repository_name
   configuration {
-    url          = "https://e08d-37-66-150-244.ngrok-free.app/github-webhook/"
+    url          = "https://${var.jenkins_domain}/github-webhook/"
     content_type = "json"
     insecure_ssl = false
   }
