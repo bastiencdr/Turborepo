@@ -1,4 +1,7 @@
 locals {
+  shared = {
+    vault_pass = var.vault_password
+  }
   environments = {
     main = {
       branch = "main"

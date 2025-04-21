@@ -25,7 +25,7 @@ output "lead_team_slug" {
 
 output "develop_branch" {
   description = "Nom de la branche de développement"
-  value       = local.environments.dev.branch
+  value       = local.environments.develop.branch
 }
 
 output "staging_branch" {
@@ -35,5 +35,5 @@ output "staging_branch" {
 
 output "production_branch" {
   description = "Nom de la branche de production"
-  value       = local.environments.production.branch
+  value       = local.environments.main.branch
 }
