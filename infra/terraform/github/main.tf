@@ -32,3 +32,15 @@ resource "github_branch_protection_v3" "branch_protections" {
     apps  = []
   }
 }
+
+# resource "github_repository_webhook" "jenkins" {
+#   repository = var.repository_name
+#   configuration {
+#     url          = "https://${var.jenkins_domain}/github-webhook/"
+#     content_type = "json"
+#     insecure_ssl = false
+#   }
+
+#   events = ["push", "pull_request"]
+#   active = true
+# }
