@@ -59,34 +59,44 @@ jobs:
           fi
           echo "matrix={\"app\":$changed_apps}" >> $GITHUB_OUTPUT
 
+  noop-typecheck:
+    name: typecheck (noop)
+    needs: detect-apps
+    if: ${{ needs.detect-apps.outputs.matrix == '{"app":[]}' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⏭️ No apps changed — skipping typecheck"
+
   typecheck:
     name: typecheck ${{ matrix.app }}
     needs: detect-apps
-    if: ${{ needs.detect-apps.outputs.matrix != '' }}
+    if: ${{ needs.detect-apps.outputs.matrix != '{"app":[]}' }}
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.detect-apps.outputs.matrix) }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Typecheck app
-        run: |
+      - uses: actions/checkout@v3
+      - run: |
           echo "🔠 Typechecking app: ${{ matrix.app }}"
           # cd apps/${{ matrix.app }} && npm run typecheck
+
+  noop-build:
+    name: build (noop)
+    needs: detect-apps
+    if: ${{ needs.detect-apps.outputs.matrix == '{"app":[]}' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⏭️ No apps changed — skipping build"
 
   build:
     name: build ${{ matrix.app }}
     needs: detect-apps
-    if: ${{ needs.detect-apps.outputs.matrix != '' }}
+    if: ${{ needs.detect-apps.outputs.matrix != '{"app":[]}' }}
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.detect-apps.outputs.matrix) }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Build app
-        run: |
+      - uses: actions/checkout@v3
+      - run: |
           echo "🏗️ Building app: ${{ matrix.app }}"
           # cd apps/${{ matrix.app }} && npm run build
