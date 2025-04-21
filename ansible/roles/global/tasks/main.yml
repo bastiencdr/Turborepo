@@ -1,0 +1,29 @@
+---
+- name: Cloner le projet depuis Git
+  git:
+    repo: "{{ repo_git }}"
+    dest: "{{ global_path }}"
+    version: main
+    key_file: "{{ ssh_key_path }}"
+    accept_hostkey: yes
+  tags: [global, clone]
+
+- name: Générer le fichier .env pour le global
+  template:
+    src: templates/global.env.j2
+    dest: "{{ global_path }}/.env"
+    mode: "0600"
+  tags: [global, env]
+
+- name: Créer le traefik-net
+  command: docker network create traefik-net
+  args:
+    creates: /var/run/docker.sock
+  tags: [global]
+
+- name: Déployer le compose global
+  become: true
+  command: docker compose up -d --build
+  args:
+    chdir: "{{ global_path }}"
+  tags: [global]

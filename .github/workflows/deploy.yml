@@ -4,13 +4,69 @@ on:
   push:
     branches:
       - main
+      - staging
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Echo secret
+        uses: actions/checkout@v3
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install System Dependencies (required for Ansible)
         run: |
-          echo "Using Vault password: ${{ secrets.VAULT_PASSWORD }}"
+          sudo apt-get update
+          sudo apt-get install -y lsb-release gnupg curl ca-certificates apt-transport-https python3-apt
+
+      - name: Install Ansible and Vault
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-core==2.14.7 ansible-vault
+          ansible --version
+
+      - name: Set deployment environment variables
+        id: env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "env=prod" >> "$GITHUB_OUTPUT"
+            echo "vault_secret=ANSIBLE_VAULT_PASSWORD_PROD" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "env=staging" >> "$GITHUB_OUTPUT"
+            echo "vault_secret=ANSIBLE_VAULT_PASSWORD_STAGING" >> "$GITHUB_OUTPUT"
+          else
+            echo "❌ Unsupported branch"
+            exit 1
+          fi
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run Ansible Playbook
+        env:
+          VAULT_PASS: ${{ secrets[steps.env.outputs.vault_secret] }}
+        run: |
+          echo "🔐 Using environment: ${{ steps.env.outputs.env }}"
+
+          VAULT_TMP=$(mktemp)
+          echo "$VAULT_PASS" > "$VAULT_TMP"
+          chmod 600 "$VAULT_TMP"
+
+          ansible-playbook \
+            --inventory "ansible/inventory/${{ steps.env.outputs.env }}.ini" \
+            -e "env=${{ steps.env.outputs.env }}" \
+            --vault-password-file "$VAULT_TMP" \
+            --private-key ~/.ssh/id_rsa \
+            --tags "docker,clone,apps" \
+            ansible/playbook-deploy.yml
+
+          shred -u "$VAULT_TMP"

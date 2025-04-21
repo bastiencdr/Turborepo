@@ -1,0 +1,14 @@
+---
+- name: Générer le fichier .env pour Monitoring
+  template:
+    src: templates/monitoring.env.j2
+    dest: "{{ monitoring_path }}/.env"
+    mode: "0600"
+  tags: [monitoring, env]
+
+- name: Déployer la stack de monitoring
+  become: true
+  ansible.builtin.command: docker compose up -d --build
+  args:
+    chdir: "{{ monitoring_path }}"
+  tags: [monitoring]

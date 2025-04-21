@@ -1,4 +1,4 @@
-import { publishUserRegistered } from "@repo/email";
+import { sendEmail } from "@repo/email";
 import { registerUser } from "@repo/auth";
 
 export async function POST(req: Request) {
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     });
   }
 
-  publishUserRegistered({ email }).catch(console.error);
+  sendEmail({ email }).catch(console.error);
 
   return new Response(JSON.stringify({ success: true }), { status: 201 });
 }
