@@ -73,6 +73,6 @@ jobs:
             --vault-password-file "$VAULT_TMP" \
             --private-key ~/.ssh/id_rsa \
             --tags "docker,clone,apps" \
-            ansible/playbook-deploy.yml
+            ansible/playbook.yml
 
           shred -u "$VAULT_TMP"
