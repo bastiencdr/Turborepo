@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Lint
-        run: echo "🔍 Lint OK"
+        run: echo "Lint OK"
 
   test:
     name: test
@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Tests
-        run: echo "🧪 Tests OK"
+        run: echo "Tests OK"
 
   security:
     name: security
@@ -51,7 +51,7 @@ jobs:
       - name: Set matrix dynamically
         id: set-matrix
         run: |
-          echo "🔍 Looking for modified apps..."
+          echo "Looking for modified apps..."
           changed_apps=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^apps/' | cut -d '/' -f2 | sort -u | jq -R . | jq -s .)
           if [ -z "$changed_apps" ] || [ "$changed_apps" = "[]" ]; then
             echo "No apps changed."
@@ -65,7 +65,7 @@ jobs:
     if: ${{ needs.detect-apps.outputs.matrix == '{"app":[]}' }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "⏭️ No apps changed — skipping typecheck"
+      - run: echo "No apps changed — skipping typecheck"
 
   typecheck:
     name: typecheck ${{ matrix.app }}
@@ -77,7 +77,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          echo "🔠 Typechecking app: ${{ matrix.app }}"
+          echo "Typechecking app: ${{ matrix.app }}"
           # cd apps/${{ matrix.app }} && npm run typecheck
 
   noop-build:
@@ -86,7 +86,7 @@ jobs:
     if: ${{ needs.detect-apps.outputs.matrix == '{"app":[]}' }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "⏭️ No apps changed — skipping build"
+      - run: echo "No apps changed — skipping build"
 
   build:
     name: build ${{ matrix.app }}
@@ -98,5 +98,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          echo "🏗️ Building app: ${{ matrix.app }}"
+          echo "Building app: ${{ matrix.app }}"
           # cd apps/${{ matrix.app }} && npm run build

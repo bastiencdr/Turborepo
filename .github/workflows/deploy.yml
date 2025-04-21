@@ -1,9 +1,9 @@
 name: Deploy
 
 on:
-  pull_request:
-    branches: [main, staging]
   push:
+    branches: [main, staging]
+  pull_request:
     branches: [main, staging]
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install System Dependencies (required for Ansible)
+      - name: Install system dependencies (required for Ansible)
         run: |
           sudo apt-get update
           sudo apt-get install -y lsb-release gnupg curl ca-certificates apt-transport-https python3-apt
@@ -33,14 +33,20 @@ jobs:
       - name: Set deployment environment variables
         id: env
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          REF="${{ github.ref }}"
+          BASE="${{ github.base_ref }}"
+
+          echo "ref: $REF"
+          echo "base_ref: $BASE"
+
+          if [[ "$REF" == "refs/heads/main" || "$BASE" == "main" ]]; then
             echo "env=prod" >> "$GITHUB_OUTPUT"
             echo "vault_secret=ANSIBLE_VAULT_PASSWORD_PROD" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+          elif [[ "$REF" == "refs/heads/staging" || "$BASE" == "staging" ]]; then
             echo "env=staging" >> "$GITHUB_OUTPUT"
             echo "vault_secret=ANSIBLE_VAULT_PASSWORD_STAGING" >> "$GITHUB_OUTPUT"
           else
-            echo "❌ Unsupported branch"
+            echo "Unsupported branch"
             exit 1
           fi
 
@@ -55,7 +61,7 @@ jobs:
         env:
           VAULT_PASS: ${{ secrets[steps.env.outputs.vault_secret] }}
         run: |
-          echo "🔐 Using environment: ${{ steps.env.outputs.env }}"
+          echo "Using environment: ${{ steps.env.outputs.env }}"
 
           VAULT_TMP=$(mktemp)
           echo "$VAULT_PASS" > "$VAULT_TMP"
