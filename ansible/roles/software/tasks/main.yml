@@ -1,0 +1,14 @@
+---
+- name: Générer le fichier .env pour Software
+  template:
+    src: templates/software.env.j2
+    dest: "{{ software_path }}/.env"
+    mode: "0600"
+  tags: [software, env]
+
+- name: Déployer l'app Software
+  become: true
+  ansible.builtin.command: docker compose up -d --build
+  args:
+    chdir: "{{ software_path }}"
+  tags: [software]
